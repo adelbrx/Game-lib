@@ -1,0 +1,58 @@
+DESCRIPTIF DU PROJET
+
+
+- plusieurs joueurs jouent contre le jeu  
+- chaque joueur a un personnage
+- chaque joueur se crée un personnage (à tour de rôle)
+- le jeu fait apparaître une créature
+- chaque joueur qui le souhaite attaque la créature qui réplique
+- si la créature meurt le jeu fait apparaître une nouvelle créature plus forte que l'ancienne
+- la partie s'arrête lorsque tous les joueurs sont vaincus
+------------------------------------------------------------------------------------------------------------
+- pour chaque opération un déscriptif précis du résultat doit être affichier à l'écran
+- chaque joueur doit pouvoir au minimum  se creer un personnage et attaquer la créature avec son personnage
+- a chaque attaque le personnage et la créature subiront des dégâts 
+- il ne peut avoir qu'une seule créature en jeu à moment donné
+- un personnage ou une créature meurt lorsqu'il n'a plus de point de la vie                                                                                                               / cbn
+- le but de jeu c'est l'élimination le plus possible de créature tous ensemble
+
+
+- les personnage puissent évoluer et utiliser des capacités spéciales en utilisent les pièces d'or communes au joueurs
+- faut utiliser les branchement conditionnel et les exeptions pour afficher les erreur et les problèmes
+
+
+
+
+PRECISION DU JEU 
+
+
+- l'équipe reçoit 50 PO pour chaque joueur crée                                                                                                                                           / cbn
+- personnage (nom , type [nain,elfe,soignant,magicien,nécromancien] , force , vie, porté)    ==> nom et type sont obligatoires à la création                                              / cbn
+- force et vie : nain[random(10..50)] , elfe[random(15..25)] , soignant et magicien et nécromancien[random(5..15)]                                                                        / cbn
+- le type de personnage détermine sa façon de combattre																	  / cbn
+- le soignant le magicien et le nécromacien ont des pouvoir spécifique															  / cbn			
+- attaque court porté : nain , soignant , nécromoin                                                                                                                                       / cbn 
+- attaque longue porté : elfe , magicien                                                                                                                                                  / cbn
+- le soignant :  peut ajouter 10 point de vie à personne vivant pour 5 PO                                                                                                                 / cbn
+- le magicien : peut déviser par 2 les point de vie d'une créature pour 20 PO                                                                                                             / cbn
+- le nécromancien : peut ressusciter un personnage mort qui revient avec 10 points de vie pour 75 PO                                                                                      / cbn
+- créature (nom , porté(random) , force et vie [random(1..10)x(1 + nombre des créatures tuées)])  ==> remis à 0 pour chaque nouvelle partie                                               / cbn
+- les joueurs attaquent séparément 
+- pour chaque attaque le créature réplique celui qui l'a attaqué 
+- pour chaque combat le personnage qui inflige d'abord les dégâts puis la créature (s'il n'est pas mort)
+- chacun perd autant de vie que la force de son adversaire 
+- le combat a lieu normalement si le personnage et la créature ont la même portée                                                                                                         / cbn
+- évolution de personnage (si les autres joueurs sont d'accord) :  pour 4 PO il a alors 25% de chance d'avoir sa chance augmentée de 4 et 50% de chance d'avoir sa vie agmentée de 2      / cbn
+- pour chaque victoire contre une créature l'équipe reçoit 40 + 10 x ( nombre de créature tuées)                                                                                          / cbn
+
+
+
+OUTILS DISPONIBLES
+
+
+- pour appeler les fichiers -> import gaming_tools
+  
+
+
+
+  
