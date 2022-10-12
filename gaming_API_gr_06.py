@@ -1,8 +1,7 @@
+
+
 from random import randint
-
-from numpy import character
 import gaming_tools
-
 
 
 
@@ -117,7 +116,7 @@ def is_die(name):
     if gaming_tools.character_exists(name):
 
         #do the test in the life of the character
-        if gaming_tools.get_character_life() == 0 :
+        if gaming_tools.get_character_life(name) == 0 :
             die = True
         else : 
             die = False
@@ -128,7 +127,7 @@ def is_die(name):
     elif gaming_tools.creature_exists(name):
 
         #do the test in the life of the creature  
-        if gaming_tools.get_creature_life() == 0 :
+        if gaming_tools.get_creature_life(name) == 0 :
             die = True
         else : 
             die = False
@@ -180,41 +179,35 @@ def generate_value_of_strenght_or_life() :
     return value
 
 
-def create_new_creature(name) :
+def create_new_creature() :
 
     """Function create a creature with the right values
-
-    Parameters
-    ----------
-    name : the name of the creature (str)
 
     Returns
     -------
     the result of the creature is insered seccessfully in the DB or not
     """
 
-    #testing the existance of the creature
-    if gaming_tools.creature_exists(name):
+    
 
-        #generating name , reach , force , life of the creature
-        name = gaming_tools.get_random_creature_name()
-        reach = get_random_creature_reach()
-        force = generate_value_of_strenght_or_life()
-        life = generate_value_of_strenght_or_life()
+    #generating name , reach , force , life of the creature
+    name = gaming_tools.get_random_creature_name()
+    reach = get_random_creature_reach()
+    force = generate_value_of_strenght_or_life()
+    life = generate_value_of_strenght_or_life()
 
-        try :
+    try :
 
-            #inserting a new creature in the DB 
-            gaming_tools.add_creature( name , reach , force , life )
-            print('the creature is created successfully')
+        #inserting a new creature in the DB 
+        gaming_tools.add_creature( name , reach , force , life )
+        print('the creature %s is created successfully' % (name))
 
-        except NameError:
-            #print the error
-            print(NameError)
+    except NameError:
+        
+        #print the error
+        print(NameError)
              
-    else :
-        print('this creature is already exist')
-
+   
 
 
 def is_victory(character_name , creature_name) :
@@ -241,6 +234,9 @@ def is_victory(character_name , creature_name) :
         #add gift of money to the team 
         gaming_tools.set_team_money( gaming_tools.get_team_money() + (40 + (10 * gaming_tools.get_nb_defeated())))
 
+        #remove the creature 
+        gaming_tools.remove_creature(creature_name)
+
         return True
 
     #if the creature is not died
@@ -254,7 +250,7 @@ def is_victory(character_name , creature_name) :
 
 def attack(name1 , name2):
 
-    """The character of the creature that have the name1 attaque the creature or the character that have the name2 
+    """The character or the creature that have the name1 attackthe creature or the character that have the name2 
         (a character can't attack an other character )
 
     Parameters
@@ -278,17 +274,31 @@ def attack(name1 , name2):
             if character_reach == creature_reach :
 
                 #if the character is not died
-                if character_life > 0 :
+                if (character_life > 0) and (gaming_tools.get_character_strength() < gaming_tools.get_creature_life()) :
 
                     #after every attack the creature loose 2 points from his life
-                    gaming_tools.set_creature_life( name2 , gaming_tools.get_creature_life(name2) - 2 )
+                    gaming_tools.set_creature_life( name2 , gaming_tools.get_creature_life(name2) - gaming_tools.get_character_strength(name1) )
+                    print('the attack was done')
 
                     #testing the victory
-                    is_victory(name1 , name2)
+                    if is_victory(name1 , name2) :
+
+                        print('There is a victory : %s win' % (name1))
+
+                elif (character_life > 0) and (gaming_tools.get_character_strength(name1) > gaming_tools.get_creature_life(name2)) :
+                    
+                    #after every attack the creature loose points from his life
+                    gaming_tools.set_creature_life( name2 , 0 )
+                    print('the attack was done')
+
+                    #testing the victory
+                    if is_victory(name1 , name2) :
+
+                        print('There is a victory : %s win the creature is died' % (name1))
 
                 #if the character is died
                 else :
-                    print('the character is die ... he can\'t attack')
+                    print('the character is died ... he can\'t attack')
 
             else : 
                 print('the characters and the creature haven\'t the same reach')
@@ -304,14 +314,22 @@ def attack(name1 , name2):
             if character_reach == creature_reach :
 
                 #if the character is not died
-                if character_life > 0 :
+                if (character_life > 0) and (gaming_tools.get_creature_strength(name1) < gaming_tools.get_character_life(name2)):
 
                     #after every attack the character loose 2 points from his life
-                    gaming_tools.set_character_life( name2 , gaming_tools.get_character_life(name2) - 2 )
+                    gaming_tools.set_character_life( name2 , gaming_tools.get_character_life(name2) - gaming_tools.get_creature_strength(name1) )
+                    print('the attack was done')
+
+                elif (character_life > 0) and (gaming_tools.get_creature_strength(name1) < gaming_tools.get_character_life(name2)):
+                
+                    #after every attack the character loose points from his life
+                    gaming_tools.set_character_life( name2 , 0 )
+                    print('the attack was done')
 
                     #testing the victory
-                    is_victory(name2 , name1)
+                    if is_victory(name1 , name2) :
 
+                        print('There is a victory : %s win the character is died' % (name1))
                 #if the character is died
                 else :
                     print('the character is die ... he can\'t attack')
@@ -381,13 +399,15 @@ def power_wizard(name1 , name2):
         if gaming_tools.character_exists(name1) and gaming_tools.creature_exists(name2) :
 
             #if the name1 is a name of a wizard 
-            if gaming_tools.get_character_variety() == 'wizard' : 
+            if gaming_tools.get_character_variety(name1) == 'wizard' : 
 
                 #devide by 2 the life of the creature 
                 gaming_tools.set_creature_life( name2 , int( gaming_tools.get_creature_life(name2) / 2 ) )
 
                 #the team loose 20 pieces of gold
                 gaming_tools.set_team_money( team_money - 20)
+
+                print('the power of wizard is used successfully')
 
             #if the name1 is not a name of a wizard 
             else :
@@ -428,10 +448,10 @@ def power_necromancer(name1 , name2):
             if gaming_tools.get_character_life(name2) <= 0 :
 
                 #if the name1 is a name of a necromancer 
-                if gaming_tools.get_character_variety() == 'necromancer' : 
+                if gaming_tools.get_character_variety(name1) == 'necromancer' : 
 
                     #resurrect a character died with 10 points of life 
-                    gaming_tools.set_creature_life( name2 , 10 )
+                    gaming_tools.set_character_life( name2 , 10 )
 
                     #the team loose 75 pieces of gold
                     gaming_tools.set_team_money( team_money - 75)
@@ -519,4 +539,6 @@ def evolution(name):
     #if the character don't exist
     else :     
         print('Error : %s is not exist' % (name))
-            
+
+
+#il me reste foncntions d'affichage de tt les attributs des caractères et des créatures            
