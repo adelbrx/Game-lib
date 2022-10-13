@@ -1,17 +1,24 @@
-
-
 from random import randint
 import gaming_tools
 
+#agree to the evolotion (dafault : False)
+is_agree = False
 
 
-#Reseting the Databaase   
-try :
-    gaming_tools.reset_game()
-except :
-    print('Error DB : error to reset the database')
 
+def reset_the_game():
+    """Reseting all database
+    
+    """
+    
+    #Reseting the Databaase   
+    try :
+        gaming_tools.reset_game()
+    except :
+        print('Error DB : error to reset the database')
 
+#reseting the game        
+reset_the_game()
 
 
 def create_new_character(name , variety):
@@ -82,6 +89,8 @@ def create_new_character(name , variety):
 
             #inserting a new character in the DB
             gaming_tools.add_new_character(name , variety , reach , strength , life)
+            #print informations
+            print('%s \n' % (print_character_informations(name)))
             
             #add 50 piece of gold in the money team
             gaming_tools.set_team_money( gaming_tools.get_team_money() + 50 )
@@ -92,6 +101,7 @@ def create_new_character(name , variety):
 
         except :
             return error_db
+
 
 
 
@@ -189,23 +199,27 @@ def create_new_creature() :
     """
 
     
+    #testing if the creature exists or not 
+    if gaming_tools.is_there_a_creature():
+        print('you can\'t create a new creature there is a creature exists')
+    else :    
+        #generating name , reach , force , life of the creature
+        name = gaming_tools.get_random_creature_name()
+        reach = get_random_creature_reach()
+        force = generate_value_of_strenght_or_life()
+        life = generate_value_of_strenght_or_life()
 
-    #generating name , reach , force , life of the creature
-    name = gaming_tools.get_random_creature_name()
-    reach = get_random_creature_reach()
-    force = generate_value_of_strenght_or_life()
-    life = generate_value_of_strenght_or_life()
+        try :
 
-    try :
+            #inserting a new creature in the DB 
+            gaming_tools.add_creature( name , reach , force , life )
+            print('the creature %s is created successfully' % (name))
+            print('%s \n' % (print_creature_informations(name)))
 
-        #inserting a new creature in the DB 
-        gaming_tools.add_creature( name , reach , force , life )
-        print('the creature %s is created successfully' % (name))
-
-    except NameError:
-        
-        #print the error
-        print(NameError)
+        except NameError:
+            
+            #print the error
+            print(NameError)
              
    
 
@@ -236,6 +250,11 @@ def is_victory(character_name , creature_name) :
 
         #remove the creature 
         gaming_tools.remove_creature(creature_name)
+
+        print('')
+
+        #create new creature
+        create_new_creature()
 
         return True
 
@@ -274,7 +293,7 @@ def attack(name1 , name2):
             if character_reach == creature_reach :
 
                 #if the character is not died
-                if (character_life > 0) and (gaming_tools.get_character_strength() < gaming_tools.get_creature_life()) :
+                if (character_life > 0) and (gaming_tools.get_character_strength(name1) < gaming_tools.get_creature_life(name2)) :
 
                     #after every attack the creature loose 2 points from his life
                     gaming_tools.set_creature_life( name2 , gaming_tools.get_creature_life(name2) - gaming_tools.get_character_strength(name1) )
@@ -475,6 +494,10 @@ def power_necromancer(name1 , name2):
 
 
 #il me reste la fonction de l'accord des autres joueurs
+
+
+
+
 def evolution(name):
     """ have 25% of chance to evolute the strenght of the character with 4 and 50% of chance to evolute the life of 
         the character with 2 for 4 pieces of gold 
@@ -484,61 +507,165 @@ def evolution(name):
     name : the name of the character (str)
     """
 
-    #faut faire un test d'abord sur l'accord des autre joueur
+    #testing if all the player are agrees to the evolution of name
+    if (is_agree) :
 
-    #testing if the character exists 
+        #testing if the character exists 
+        if gaming_tools.character_exists(name) :
+
+            #if the character is not died
+            if gaming_tools.get_character_life(name) > 0 :
+
+                #realize the 50% with random
+                random_number = randint(0,1)
+                
+                #number 1 mean yes he can evolute his life and number 0 means that he can't evolute his life
+                if random_number == 0 : 
+                    
+                    print('Sorry they hasn\'t the chance to evolute the life')
+            
+                #random_number == 1
+                else : 
+
+                    #evolute the life with 2
+                    gaming_tools.set_character_life( name , gaming_tools.get_character_life(name) + 2 )
+                    print('The life is evoluted with 2 points')
+
+
+                #realize the 25% with random
+                random_number = randint(0,3)
+                
+                #number 3 mean yes he can evolute his strenght and numbers 0,1,2 means that he can't evolute his strenght
+                if random_number == 0 : 
+                    
+                    print('Sorry they hasn\'t the chance to evolute the strenght')
+            
+                if random_number == 1 : 
+                    
+                    print('Sorry they hasn\'t the chance to evolute the strenght')
+                
+                if random_number == 2 : 
+                    
+                    print('Sorry they hasn\'t the chance to evolute the strenght')
+                
+                #random_number == 3
+                else : 
+
+                    #evolute the strenght with 4
+                    gaming_tools.set_character_strength( name , gaming_tools.get_character_strength(name) + 4 )
+                    print('The strenght is evoluted with 4 points')
+
+
+            #if the character is died
+            else :
+                print('Error : this character is died')    
+
+        #if the character don't exist
+        else :     
+            print('Error : %s is not exist' % (name))
+
+    #if other players are not agreed
+    else :
+
+        #print that can't evoluate
+        print('Sorry we can\'t evoluate the %s because other player are not agree with that' % (name))   
+
+
+
+def fight(name1,name2):
+
+    """name 1 attack and name 2 reply
+    
+    Paramaters
+    ----------
+    name1 : the name of the first hero (str)
+    name2 : the name of the second hero (str)
+    """
+
+    #name1 attack and name2 reply 
+    attack(name1,name2)
+    attack(name2,name1)
+    
+    
+
+def print_character_informations(name):
+    """print the life , the reach , the variety and the strength of a character 
+    
+    Parameters
+    ----------
+    name : the name of the character (str)
+
+    Returns 
+    -------
+
+    infos : the informations of the character (str)
+
+    """
+    
+    #testing if this name exists in the characters
     if gaming_tools.character_exists(name) :
 
-        #if the character is not died
-        if gaming_tools.get_character_life(name) > 0 :
+        #print the properties of this character
+        variety = gaming_tools.get_character_variety(name)
+        reach = gaming_tools.get_character_reach(name)
+        life = gaming_tools.get_character_life(name)
+        strength = gaming_tools.get_character_strength(name)
 
-            #realize the 50% with random
-            random_number = randint(0,1)
-            
-            #number 1 mean yes he can evolute his life and number 0 means that he can't evolute his life
-            if random_number == 0 : 
-                
-                print('Sorry they hasn\'t the chance to evolute the life')
-           
-            #random_number == 1
-            else : 
+        return 'Name : %s | variety : %s | reach : %s | life : %s | strength : %s' % (name,variety,reach,life,strength)
 
-                #evolute the life with 2
-                gaming_tools.set_character_life( name , gaming_tools.get_character_life(name) + 2 )
-                print('The life is evoluted with 2 points')
+    #if it's not exists     
+    else :
+        #print a error
+        return 'Sorry %s not exists in the characters' % (name)  
+        
 
 
-            #realize the 25% with random
-            random_number = randint(0,3)
-            
-            #number 3 mean yes he can evolute his strenght and numbers 0,1,2 means that he can't evolute his strenght
-            if random_number == 0 : 
-                
-                print('Sorry they hasn\'t the chance to evolute the strenght')
-           
-            if random_number == 1 : 
-                
-                print('Sorry they hasn\'t the chance to evolute the strenght')
-            
-            if random_number == 2 : 
-                
-                print('Sorry they hasn\'t the chance to evolute the strenght')
-            
-            #random_number == 3
-            else : 
 
-                #evolute the strenght with 4
-                gaming_tools.set_character_strength( name , gaming_tools.get_character_strength(name) + 4 )
-                print('The strenght is evoluted with 4 points')
+def print_creature_informations(name):
+    """print the life , the reach , the variety and the strength of a creature 
+    
+    Parameters
+    ----------
+    name : the name of the creature (str)
 
+    Returns 
+    -------
 
-        #if the character is died
-        else :
-            print('Error : this character is died')    
+    infos : the informations of the creature (str)
 
-    #if the character don't exist
-    else :     
-        print('Error : %s is not exist' % (name))
+    """
+    
+    #testing if this name exists in the creatures
+    if gaming_tools.creature_exists(name) :
+
+        #print the properties of this character
+        reach = gaming_tools.get_creature_reach(name)
+        life = gaming_tools.get_creature_life(name)
+        strength = gaming_tools.get_creature_strength(name)
+
+        return 'Name : %s | reach : %s | life : %s | strength : %s' % (name,reach,life,strength)
+
+    #if it's not exists     
+    else :
+        #print a error
+        return 'Sorry %s not exists in the creatures' % (name) 
 
 
-#il me reste foncntions d'affichage de tt les attributs des caractères et des créatures            
+def set_agree(response):
+    """function used when all characters are agree to evolution
+    
+    Parameters
+    ----------
+    response : the response of name1 True if he is agree (bool)
+
+    """
+    is_agree = response
+    
+    
+def print_all_functions():
+    """procedure to print all functions that the players can use him
+    """    
+    print("\n\n\nThe list of the functions availables in this module :\n")
+    print("reset_the_game() *** create_new_character(name , variety) *** is_die(name) *** create_new_creature() *** power_necromancer(name1 , name2) *** power_healer(name1 , name2) *** power_wizard(name1 , name2) *** evolution(name) *** fight(name1,name2) *** set_agree(response) *** print_creature_informations(name) *** print_character_informations(name) *** print_all_functions()\n\n\n")
+
+print_all_functions()    
